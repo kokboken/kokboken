@@ -24,6 +24,14 @@
   .msg img { width: 88px; height: 88px; border-radius: 20px; }
   .msg h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; font-size: 2rem; margin: 16px 0 8px; }
   .msg p { color: var(--muted); margin: 0; }
+  /* Rutan "Lägg Kokboken på hemskärmen", visas tills man har lagt till appen eller stängt rutan. */
+  .tips { position: fixed; left: 12px; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); z-index: 10; display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 16px; background: #B5482F; color: #fff; box-shadow: 0 8px 28px rgba(0,0,0,.35); font-size: .95rem; line-height: 1.4; }
+  .tips img { width: 40px; height: 40px; border-radius: 10px; flex: none; }
+  .tips div { flex: 1; }
+  .tips strong { display: block; }
+  .tips button { border: 0; border-radius: 99px; cursor: pointer; font: inherit; }
+  .tips .go { background: #FAF6EF; color: #B5482F; font-weight: 700; padding: 8px 14px; }
+  .tips .x { background: transparent; color: #fff; width: 32px; height: 32px; font-size: 1.1rem; flex: none; }
 </style>
 </head>
 <body>
@@ -40,6 +48,35 @@
     setTheme(t);
     try { localStorage.setItem('kokboken-tema', t); } catch (err) {}
   });
+  /* Lägg på hemskärmen. Android (Chrome) kan visa sin egen fråga via beforeinstallprompt.
+     iPhone tillåter inte det, så där visas en instruktion. Inget visas om appen redan körs från hemskärmen. */
+  var installEvent = null;
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); installEvent = e; var t = document.getElementById('tips'); if (t) renderTip(t); });
+  function standalone() { return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; }
+  function isIOS() { return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+  function inAppBrowser() { return /FBAN|FBAV|Instagram|Messenger|Line\/|GSA\//.test(navigator.userAgent); }
+  function renderTip(t) {
+    var text, btn = '';
+    if (inAppBrowser()) text = 'Öppna länken i Safari eller Chrome först, sedan kan du lägga Kokboken på hemskärmen.';
+    else if (isIOS()) text = 'Tryck på Dela-ikonen <span aria-hidden="true">⬆︎</span> nedanför och välj <b>Lägg till på hemskärmen</b>.';
+    else if (installEvent) { text = 'Få Kokboken som en app på telefonen.'; btn = '<button class="go" id="tipsGo">Installera</button>'; }
+    else text = 'Öppna webbläsarens meny <span aria-hidden="true">⋮</span> och välj <b>Lägg till på startskärmen</b>.';
+    t.innerHTML = '<img src="ikon-192.png" alt=""><div><strong>Lägg Kokboken på hemskärmen</strong>' + text + '</div>' + btn + '<button class="x" id="tipsX" aria-label="Stäng">✕</button>';
+    document.getElementById('tipsX').onclick = function () { t.remove(); try { localStorage.setItem('kokboken-tips', 'stangd'); } catch (e) {} };
+    var go = document.getElementById('tipsGo');
+    if (go) go.onclick = function () { installEvent.prompt(); installEvent.userChoice.then(function () { t.remove(); }); };
+  }
+  function showInstallTip() {
+    var closed = null;
+    try { closed = localStorage.getItem('kokboken-tips'); } catch (e) {}
+    if (standalone() || closed || !/Mobi|Android|iPhone|iPad/.test(navigator.userAgent + (isIOS() ? ' iPhone' : ''))) return;
+    var t = document.createElement('div');
+    t.className = 'tips'; t.id = 'tips'; t.setAttribute('role', 'status');
+    document.body.appendChild(t);
+    renderTip(t);
+  }
+  window.addEventListener('appinstalled', function () { var t = document.getElementById('tips'); if (t) t.remove(); });
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
   var APPS = {
     skarp: 'https://script.google.com/macros/s/AKfycbxS5yofpzcw7tum_f3_0I-agP7ihwDkXchDMKBx2XolBaIsIFumfKfmXZO0UQvEnqYz/exec',
     test: 'https://script.google.com/macros/s/AKfycbwaCckzq2T4fowOAwCo_EbM-dzVGhlcOoAx51GtiJYdIGKQQ-sMHBZU1Apn_YiITPx6nQ/exec'
@@ -66,6 +103,7 @@
     f.allow = 'clipboard-read; clipboard-write; web-share; fullscreen; screen-wake-lock';
     f.src = base + '?k=' + encodeURIComponent(key);
     document.body.appendChild(f);
+    showInstallTip();
   } else {
     document.body.innerHTML = '<div class="msg"><img src="ikon-192.png" alt=""><h1>Kokboken</h1><p>Be Victor eller Lovisa om din länk.</p></div>';
   }
