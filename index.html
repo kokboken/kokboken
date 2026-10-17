@@ -37,9 +37,16 @@
   var key = p.get('k'), app = p.get('app');
   /* Nyckeln står kvar i adressen, så att den följer med när man lägger sidan på hemskärmen.
      Den sparas också i telefonen, ifall sidan öppnas utan nyckel. */
+  /* En länk med nyckel bestämmer alltid själv vilken app som öppnas (utan ?app= blir det den skarpa).
+     Bara en adress helt utan nyckel använder det som sparats sedan förra gången. */
   try {
-    if (key) localStorage.setItem('kokboken-k', key); else key = localStorage.getItem('kokboken-k');
-    if (app) localStorage.setItem('kokboken-app', app); else app = localStorage.getItem('kokboken-app');
+    if (key) {
+      localStorage.setItem('kokboken-k', key);
+      if (app) localStorage.setItem('kokboken-app', app); else localStorage.removeItem('kokboken-app');
+    } else {
+      key = localStorage.getItem('kokboken-k');
+      app = localStorage.getItem('kokboken-app');
+    }
   } catch (e) {}
   var base = APPS[app] || APPS.skarp;
   if (key) {
