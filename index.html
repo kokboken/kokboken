@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kokboken</title>
+<meta name="description" content="Familjens kokbok">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="ikon-192.png">
+<link rel="apple-touch-icon" href="ikon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kokboken">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F4F6F9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1621" media="(prefers-color-scheme: dark)">
+<style>
+  :root { --bg: #F4F6F9; --ink: #17202D; --muted: #5A6577; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0E1621; --ink: #E6EBF2; --muted: #98A4B6; } }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 17px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  /* Appen ligger i en ram som täcker skärmen, men lämnar plats för klockan överst och hemstrecket nederst på iPhone. */
+  iframe { position: fixed; left: 0; right: 0; top: env(safe-area-inset-top, 0px); bottom: env(safe-area-inset-bottom, 0px); width: 100%; height: calc(100% - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg); }
+  .msg { max-width: 30em; margin: 0 auto; padding: 22vh 24px 24px; text-align: center; }
+  .msg img { width: 88px; height: 88px; border-radius: 20px; }
+  .msg h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; font-size: 2rem; margin: 16px 0 8px; }
+  .msg p { color: var(--muted); margin: 0; }
+</style>
+</head>
+<body>
+<script>
+  /* Appens adresser hos Google. Med ?app=test används testappen. */
+  var APPS = {
+    skarp: 'https://script.google.com/macros/s/AKfycbxS5yofpzcw7tum_f3_0I-agP7ihwDkXchDMKBx2XolBaIsIFumfKfmXZO0UQvEnqYz/exec',
+    test: 'https://script.google.com/macros/s/AKfycbwaCckzq2T4fowOAwCo_EbM-dzVGhlcOoAx51GtiJYdIGKQQ-sMHBZU1Apn_YiITPx6nQ/exec'
+  };
+  var p = new URLSearchParams(location.search);
+  var key = p.get('k'), app = p.get('app');
+  /* Nyckeln står kvar i adressen, så att den följer med när man lägger sidan på hemskärmen.
+     Den sparas också i telefonen, ifall sidan öppnas utan nyckel. */
+  try {
+    if (key) localStorage.setItem('kokboken-k', key); else key = localStorage.getItem('kokboken-k');
+    if (app) localStorage.setItem('kokboken-app', app); else app = localStorage.getItem('kokboken-app');
+  } catch (e) {}
+  var base = APPS[app] || APPS.skarp;
+  if (key) {
+    var f = document.createElement('iframe');
+    f.title = 'Kokboken';
+    f.allow = 'clipboard-read; clipboard-write; web-share; fullscreen; screen-wake-lock';
+    f.src = base + '?k=' + encodeURIComponent(key);
+    document.body.appendChild(f);
+  } else {
+    document.body.innerHTML = '<div class="msg"><img src="ikon-192.png" alt=""><h1>Kokboken</h1><p>Be Victor eller Lovisa om din länk.</p></div>';
+  }
+</script>
+</body>
+</html>
