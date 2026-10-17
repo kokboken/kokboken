@@ -12,11 +12,11 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Kokboken">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#FAF6EF" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1C1612" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#1C1612" id="themecolor">
 <style>
-  :root { --bg: #FAF6EF; --ink: #3A2A20; --muted: #7A6553; }
-  @media (prefers-color-scheme: dark) { :root { --bg: #1C1612; --ink: #F2E9DF; --muted: #B5A391; } }
+  /* Mörkt är standard, som i appen. Appen meddelar när man byter läge. */
+  :root { --bg: #1C1612; --ink: #F2E9DF; --muted: #B5A391; }
+  :root[data-theme="light"] { --bg: #FAF6EF; --ink: #3A2A20; --muted: #7A6553; }
   html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 17px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   /* Appen ligger i en ram som täcker skärmen, men lämnar plats för klockan överst och hemstrecket nederst på iPhone. */
   iframe { position: fixed; left: 0; right: 0; top: env(safe-area-inset-top, 0px); bottom: env(safe-area-inset-bottom, 0px); width: 100%; height: calc(100% - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg); }
@@ -29,6 +29,17 @@
 <body>
 <script>
   /* Appens adresser hos Google. Med ?app=test används testappen. */
+  function setTheme(t) {
+    document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+    document.getElementById('themecolor').setAttribute('content', t === 'light' ? '#FAF6EF' : '#1C1612');
+  }
+  try { setTheme(localStorage.getItem('kokboken-tema')); } catch (e) { setTheme('dark'); }
+  window.addEventListener('message', function (e) {
+    var t = e.data && e.data.kokbokenTema;
+    if (t !== 'light' && t !== 'dark') return;
+    setTheme(t);
+    try { localStorage.setItem('kokboken-tema', t); } catch (err) {}
+  });
   var APPS = {
     skarp: 'https://script.google.com/macros/s/AKfycbxS5yofpzcw7tum_f3_0I-agP7ihwDkXchDMKBx2XolBaIsIFumfKfmXZO0UQvEnqYz/exec',
     test: 'https://script.google.com/macros/s/AKfycbwaCckzq2T4fowOAwCo_EbM-dzVGhlcOoAx51GtiJYdIGKQQ-sMHBZU1Apn_YiITPx6nQ/exec'

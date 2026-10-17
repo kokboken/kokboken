@@ -4,7 +4,7 @@
   "description": "Familjens kokbok",
   "lang": "sv",
   "display": "standalone",
-  "background_color": "#FAF6EF",
+  "background_color": "#1C1612",
   "theme_color": "#B5482F",
   "icons": [
     { "src": "ikon-192.png", "sizes": "192x192", "type": "image/png" },
