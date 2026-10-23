@@ -19,7 +19,9 @@
   :root[data-theme="light"] { --bg: #FAF6EF; --ink: #3A2A20; --muted: #7A6553; }
   html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 17px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   /* Appen ligger i en ram som täcker skärmen, men lämnar plats för klockan överst och hemstrecket nederst på iPhone. */
-  iframe { position: fixed; left: 0; right: 0; top: env(safe-area-inset-top, 0px); bottom: env(safe-area-inset-bottom, 0px); width: 100%; height: calc(100% - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg); }
+  /* På iPhone kan en ram växa till innehållets bredd. width: 1px och min-width: 100% håller den lika bred som skärmen.
+     I liggande läge lämnas plats för kameran på sidorna. */
+  iframe { position: fixed; left: env(safe-area-inset-left, 0px); right: env(safe-area-inset-right, 0px); top: env(safe-area-inset-top, 0px); bottom: env(safe-area-inset-bottom, 0px); width: 1px; min-width: calc(100% - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)); max-width: calc(100% - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)); height: calc(100% - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); border: 0; background: var(--bg); }
   .msg { max-width: 30em; margin: 0 auto; padding: 22vh 24px 24px; text-align: center; }
   .msg img { width: 88px; height: 88px; border-radius: 20px; }
   .msg h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; font-size: 2rem; margin: 16px 0 8px; }
