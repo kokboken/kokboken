@@ -99,11 +99,13 @@
     }
   } catch (e) {}
   var base = APPS[app] || APPS.skarp;
+  /* Nya appen (på prov): ligger här på startsidan (app.html) och pratar med Googles server med fetch. ?app=ny = skarpa servern, ?app=nytest = testservern. */
+  var NY = { ny: 'skarp', nytest: 'test' };
   if (key) {
     var f = document.createElement('iframe');
     f.title = 'Kokboken';
     f.allow = 'clipboard-read; clipboard-write; web-share; fullscreen; screen-wake-lock';
-    f.src = base + '?k=' + encodeURIComponent(key);
+    f.src = NY[app] ? 'app.html?srv=' + NY[app] + '&k=' + encodeURIComponent(key) : base + '?k=' + encodeURIComponent(key);
     document.body.appendChild(f);
     showInstallTip();
   } else {
