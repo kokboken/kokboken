@@ -98,14 +98,16 @@
       app = localStorage.getItem('kokboken-app');
     }
   } catch (e) {}
-  var base = APPS[app] || APPS.skarp;
-  /* Nya appen (på prov): ligger här på startsidan (app.html) och pratar med Googles server med fetch. ?app=ny = skarpa servern, ?app=nytest = testservern. */
-  var NY = { ny: 'skarp', nytest: 'test' };
+  /* Nya appen är standard sedan 18 nov 2026: den ligger här på startsidan (app.html) och pratar med Googles server med fetch.
+     ?app=test (eller nytest) = testservern. Den gamla appen hos Google finns kvar som reserv: ?app=gammal och ?app=gammaltest. */
+  var OLD = { gammal: 'skarp', gammaltest: 'test' };
+  var base = APPS[OLD[app]] || APPS.skarp;
+  var srv = OLD[app] ? '' : (app === 'test' || app === 'nytest') ? 'test' : 'skarp';
   if (key) {
     var f = document.createElement('iframe');
     f.title = 'Kokboken';
     f.allow = 'clipboard-read; clipboard-write; web-share; fullscreen; screen-wake-lock';
-    f.src = NY[app] ? 'app.html?srv=' + NY[app] + '&k=' + encodeURIComponent(key) : base + '?k=' + encodeURIComponent(key);
+    f.src = srv ? 'app.html?srv=' + srv + '&k=' + encodeURIComponent(key) : base + '?k=' + encodeURIComponent(key);
     document.body.appendChild(f);
     showInstallTip();
   } else {
